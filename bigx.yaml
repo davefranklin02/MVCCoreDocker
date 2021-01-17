@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: btnfrontend
+  name: btnfrontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: btnfrontend
+  template:
+    metadata:
+      labels:
+        app: btnfrontend
+      name: btnfrontend
+    spec:
+      terminationGracePeriodSeconds: 10
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 1
+      containers:
+        - name: btnfrontend
+          image: thatcontainerregistry.azurecr.io/iotbtn/btnfrontend:1.0
+          imagePullPolicy: Always
+          env:
+            - name: MSSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: desks
+                  key: mssqlserver-user-password
+            - name: MSSQL_USER
+              value: desksUser
+            - name: MSSQL_SERVER
+              value: mssqlserver-service
+            - name: MSSQL_DB
+              value: DesksDB
+          ports:
+            - name: btnfrontend
+              containerPort: 4000
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: "100Mi"
+            limits:
+              cpu: "0.5"
+              memory: "300Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: btnfrontend
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: btnfrontend
+            initialDelaySeconds: 5
+            periodSeconds: 5
