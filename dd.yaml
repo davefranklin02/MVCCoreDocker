@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.21.0 (992df58d8)
   creationTimestamp: null
   labels:
-    io.kompose.service: mvccoredocker
-  name: mvccoredocker
+    io.kompose.service: db
+  name: db
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: mvccoredocker
+      io.kompose.service: db
   strategy: {}
   template:
     metadata:
@@ -21,20 +21,31 @@ spec:
         kompose.version: 1.21.0 (992df58d8)
       creationTimestamp: null
       labels:
-        io.kompose.service: mvccoredocker
+        io.kompose.service: db
     spec:
       containers:
-      - image: boblewisc/mvccoredocker
-        imagePullPolicy: Always
-        name: mvccoredocker
-        resources: {}
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        imagePullPolicy: Never
+        resources:
+          requests:
+            cpu: 1
+            memory: 4Gi
+        env:
+          - name: ACCEPT_EULA
+            value: "Y"
+          - name: SA_PASSWORD
+            value: "Pass@word1"
+          - name: MSSQL_PID
+            value: "Developer"
+        ports:
+        - containerPort: 1433
       restartPolicy: Always
       serviceAccountName: ""
       volumes: null
 status: {}
 
 ---
- 
 
 apiVersion: v1
 kind: Service
@@ -44,16 +55,16 @@ metadata:
     kompose.version: 1.21.0 (992df58d8)
   creationTimestamp: null
   labels:
-    io.kompose.service: mvccoredocker
-  name: mvccoredocker
+    io.kompose.service: db
+  name: db
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
-  - name: "mvccoredocker"
-    port: 80
-    targetPort: 80
+  - name: "1433"
+    port: 1433
+    targetPort: 1433
   selector:
-    io.kompose.service: mvccoredocker
+    io.kompose.service: db
 status:
   loadBalancer: {}
 

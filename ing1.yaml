@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: test1-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: / 
+     
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: hellok8s1-service
+          servicePort: 8080
+        path: / 
+        pathType: Prefix
+ 
+ 
