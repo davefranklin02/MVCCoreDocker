@@ -29,8 +29,16 @@ namespace MVCCoreDocker.Controllers
         {
             string connetionString = null;
             SqlConnection cnn;
-            connetionString = "Data Source=davelapsqlserver;Initial Catalog=ContosoUniversity1XC;User ID=sa;Password=tvxs721#3";
-            cnn = new SqlConnection(connetionString);
+#if DEBUG
+            string connectionString1 = "Data Source=davelap;Initial Catalog=ContosoUniversity1XC;User ID=sa;Password=tvxs721#3";
+            cnn = new SqlConnection(connectionString1);
+#else
+            string connectionString = "Data Source=davelapsqlserver;Initial Catalog=ContosoUniversity1XC;User ID=sa;Password=tvxs721#3";
+            cnn = new SqlConnection(connectionString);
+#endif
+            
+            List<Student153> li = new List<Student153>();
+
             try
             {
                 SqlCommand command = new SqlCommand(
@@ -47,7 +55,12 @@ namespace MVCCoreDocker.Controllers
                 {
                     while (reader.Read())
                     {
-                        var ty = reader.GetInt32(0) + " " + reader.GetString(1);
+                        Student153 st = new Student153();
+                        var ty = reader.GetInt32(0) + " " + reader.GetString(1) + reader.GetString(2);
+                        st.ID = reader.GetInt32(0);
+                        st.FirstMidName = reader.GetString(1);
+                        st.LastName = reader.GetString(2);
+                        li.Add(st);
                         _logger.LogInformation(ty);
                     }
                 }
@@ -77,7 +90,7 @@ namespace MVCCoreDocker.Controllers
             } */
 
 
-
+            ViewData["data"] = li;
             return View();
         }
 
@@ -85,8 +98,12 @@ namespace MVCCoreDocker.Controllers
         public IActionResult About()
         {
             string connectionString = "";
+#if DEBUG
+            System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("localhost");
+#else
             System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("headless-service.default.svc.cluster.local");
-             
+#endif
+
             if (ipAddresses.Length == 0)
                 _logger.LogInformation("this addresses r 0");
             else
@@ -104,7 +121,7 @@ namespace MVCCoreDocker.Controllers
             connectionString += "/database";
             //var client = new MongoClient(connectionString);
             
-            ViewData["ip"] = ipAddresses;
+            
 
             return View();
         }

@@ -1,6 +1,69 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+﻿@model MVCCoreDocker.Models.Student153;
+
+@{
+    ViewData["Title"] = "External Service Kubernetes";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p>
+    kind: Service
+    apiVersion: v1
+    metadata:
+    name: davelapsqlserver
+    spec:
+    type: ClusterIP
+    ports:
+    - port: 1433
+    targetPort: 1433
+
+    ---
+
+    kind: Endpoints
+    apiVersion: v1
+    metadata:
+    name: davelapsqlserver
+    subsets:
+    - addresses:
+    - ip: 192.168.1.153
+    ports:
+    - port: 1433
+
+</p>
+ 
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstMidName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewData["data"] as IEnumerable<MVCCoreDocker.Models.Student153>)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstMidName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
