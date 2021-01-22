@@ -1,4 +1,5 @@
-﻿using MVCCoreDocker.Models;
+﻿using Microsoft.Extensions.Logging;
+using MVCCoreDocker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,10 @@ namespace MVCCoreDocker.Data
 
 
 
-        public static void Initialize(SchoolContext context)
+        public static void Initialize(SchoolContext context, ILogger logger)
         {
+            logger.LogInformation("Initialize(SchoolContext context, ILogger logger)");
+
             context.Database.EnsureCreated();
 
             // Look for any students.

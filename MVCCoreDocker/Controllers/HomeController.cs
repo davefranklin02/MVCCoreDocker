@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MVCCoreDocker.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -22,11 +23,67 @@ namespace MVCCoreDocker.Controllers
 
         public IActionResult Index()
         {
+            
+            NameValueCollection coll;
+
+            Dictionary<string, string> ss
+                     = Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value));
+
+
+            var keys = new List<string>(ss.Keys);
+
+
+            // Load Header collection into NameValueCollection object.
+            Microsoft.AspNetCore.Http.IHeaderDictionary colxl = Request.Headers;
+           
+/*
+            // Put the names of all keys into a string array.
+            String[] arr1 = coll.AllKeys;
+            for (loop1 = 0; loop1 < arr1.Length; loop1++)
+            {
+                //Response.Write("Key: " + arr1[loop1] + "<br>");
+                // Get all values under this key.
+                String[] arr2 = coll.GetValues(arr1[loop1]);
+                for (loop2 = 0; loop2 < arr2.Length; loop2++)
+                {
+                   // Response.Write("Value " + loop2 + ": " + Server.HtmlEncode(arr2[loop2]) + "<br>");
+                }
+            }
+*/
+            _logger.LogInformation("test date time: " + Dns.GetHostName() + " " + DateTime.Now.ToString() 
+                   + keys.ToString());
+
             return View();
         }
 
         public IActionResult Privacy()
         {
+
+            /*  external
+                kind: Service
+                apiVersion: v1
+                metadata:
+                  name: davelapsqlserver
+                spec:
+                  type: ClusterIP
+                  ports:
+                  - port: 1433
+                    targetPort: 1433
+    
+                ---
+
+                kind: Endpoints
+                apiVersion: v1
+                metadata:
+                  name: davelapsqlserver
+                subsets:
+                  - addresses:
+                      - ip: 192.168.1.153
+                    ports:
+                      - port: 1433  
+            */
+
+
             string connetionString = null;
             SqlConnection cnn;
 #if DEBUG
@@ -95,14 +152,37 @@ namespace MVCCoreDocker.Controllers
         }
 
 
+
+        /*
+
         public IActionResult About()
         {
+            _logger.LogInformation("Enter About headless ***** ");
+               headless
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: headless-service
+                spec:
+                  clusterIP: None # <--
+                  selector:
+                    app: api
+                  ports:
+                    - protocol: TCP
+                      port: 80
+                      targetPort: 80 
+             
+
             string connectionString = "";
 #if DEBUG
             System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("localhost");
 #else
+            _logger.LogInformation("About be4 DNS.getHostAddresses ***** ");
             System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("headless-service.default.svc.cluster.local");
+             _logger.LogInformation("About After DNS.getHostAddresses ***** ");
 #endif
+
+
 
             if (ipAddresses.Length == 0)
                 _logger.LogInformation("this addresses r 0");
@@ -126,7 +206,61 @@ namespace MVCCoreDocker.Controllers
             return View();
         }
 
+*/
+        public IActionResult About()
+        {
+            _logger.LogInformation("Enter About headless ***** ");
+            /*  headless
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: headless-service
+                spec:
+                  clusterIP: None # <--
+                  selector:
+                    app: api
+                  ports:
+                    - protocol: TCP
+                      port: 80
+                      targetPort: 80
+            */
 
+            string connectionString = "";
+#if DEBUG
+            System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("localhost");
+#else
+            _logger.LogInformation("About be4 DNS.getHostAddresses ***** ");
+            System.Net.IPAddress[] ipAddresses = Dns.GetHostAddresses("headless-service.default.svc.cluster.local");
+             _logger.LogInformation("About After DNS.getHostAddresses ***** ");
+#endif
+
+            List<IPClass> ipclass = new List<IPClass>();
+
+
+            if (ipAddresses.Length == 0)
+                _logger.LogInformation("this addresses r 0");
+            else
+                _logger.LogInformation("the IP addresses are  " + ipAddresses.Length.ToString());
+
+            foreach (IPAddress ip in ipAddresses)
+            {
+                IPClass ipc = new IPClass();
+                ipc.IPAddr = ip.ToString();
+                ipclass.Add(ipc);
+
+                _logger.LogInformation("this is one IP: " + ip.ToString());
+                if (String.IsNullOrEmpty(connectionString))
+                    connectionString = "mongodb://";
+                else
+                    connectionString += ",";
+                connectionString += $"{ip.ToString()}:27017";
+            }
+            connectionString += "/database";
+            //var client = new MongoClient(connectionString);
+
+            ViewData["ipdata"] = ipclass;
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

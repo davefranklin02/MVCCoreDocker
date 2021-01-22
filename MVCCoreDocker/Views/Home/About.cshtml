@@ -1,11 +1,37 @@
 ﻿
+@model MVCCoreDocker.Models.IPClass;
 @{
     ViewData["Title"] = "About";
 }
 
 <h1>About</h1>
 
-<div>
-    <p> @ViewData["ip"] </p>
-</div>
 
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IPAddr)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewData["ipdata"] as IEnumerable<MVCCoreDocker.Models.IPClass>)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IPAddr)
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.IPAddr">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.IPAddr">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.IPAddr">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

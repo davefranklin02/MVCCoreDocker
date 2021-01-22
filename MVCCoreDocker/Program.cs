@@ -24,21 +24,31 @@ namespace MVCCoreDocker
 
         private static void CreateDbIfNotExists(IHost host)
         {
+            
+
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
+
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogInformation("Enter Create Scope -- ");
+
+
                 try
                 {
+                    logger.LogInformation("be4 DbInitializer.LapInitialize(Lapcontext)");
                     var Lapcontext = services.GetRequiredService<LapContext>();
                     DbInitializer.LapInitialize(Lapcontext);
+                    logger.LogInformation("After DbInitializer.LapInitialize(Lapcontext)");
 
-
+                    logger.LogInformation("DbInitializer.Initialize(context)");
                     var context = services.GetRequiredService<SchoolContext>();
-                    DbInitializer.Initialize(context);
+                    DbInitializer.Initialize(context, logger);
+                    logger.LogInformation("After DbInitializer.LapInitialize(context)");
                 }
                 catch (Exception ex)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    //var logger = services.GetRequiredService<ILogger<Program>>();
                     logger.LogError(ex, "An error occurred creating the DB.");
                 }
             }

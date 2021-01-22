@@ -4,20 +4,21 @@ services:
 
   db:
     image: "mcr.microsoft.com/mssql/server:2017-latest"
+    volumes:
+      - ${APPDATA}/mssql-server-linux-data:/var/opt/mssql/data
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Pass@word1
     ports:
       - 1433:1433
-    healthcheck:
-            test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
-            interval: 30s
-            timeout: 15s
-            retries: 10
-            start_period: 30s
+    
 
   mvccoredocker:
     image: ${DOCKER_REGISTRY-}mvccoredocker
     build:
       context: .
       dockerfile: MVCCoreDocker/Dockerfile
+
+
+volumes:
+  mssql-server-linux-data:

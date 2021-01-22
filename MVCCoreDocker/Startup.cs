@@ -31,12 +31,14 @@ namespace MVCCoreDocker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            /*
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy())
                 .AddSqlServer("Server=server;Database=ContosoUniversityDDD;User Id=sa;Password=Pass@word1",
                         tags: new[] { "services" })
                 .AddRedis("redis",
                         tags: new[] { "services" });
+            */
 
             services.AddDbContext<SchoolContext>(options =>
               options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -63,6 +65,7 @@ namespace MVCCoreDocker
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            /*
             app.UseHealthChecks("/self", new HealthCheckOptions
             {
                 Predicate = r => r.Name.Contains("self")
@@ -72,6 +75,7 @@ namespace MVCCoreDocker
             {
                 Predicate = r => r.Tags.Contains("services")
             });
+            */
 
             app.UseStaticFiles();
 
