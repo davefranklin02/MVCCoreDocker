@@ -9,4 +9,9 @@ namespace MVCCoreDocker.Models
     {
         public string IPAddr;
     }
+
+    public class k8sClass
+    {
+        public string PodName;
+    }
 }

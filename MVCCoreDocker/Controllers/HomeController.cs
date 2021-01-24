@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using k8s;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace MVCCoreDocker.Controllers
 {
@@ -18,8 +21,89 @@ namespace MVCCoreDocker.Controllers
 
         public HomeController(ILogger<HomeController> logger)
         {
+
+            IPHostEntry hostInfo = Dns.Resolve("www.yahoo.com");
+            // Get the IP address list that resolves to the host names contained in the
+            // Alias property.
+            IPAddress[] address = hostInfo.AddressList;
+
+            IPHostEntry host = Dns.GetHostEntry(address[0]);
+
+
+            // Get the alias names of the addresses in the IP address list.
+            String[] alias = hostInfo.Aliases;
+
+
             _logger = logger;
         }
+
+
+        public IActionResult K8Service()
+        {
+            _logger.LogInformation("be4 the K8s Connetion");
+#if RELEASE
+            var config = KubernetesClientConfiguration.InClusterConfig();
+#else
+            var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(@"G:\aspcore\MVCCoreDocker\MVCCoreDocker\MVCCoreDocker\bin\Debug\net5.0\config");
+#endif
+            IKubernetes client = new Kubernetes(config);
+            _logger.LogInformation("after the K8s Connetion");
+             
+            var list = client.ListServiceForAllNamespaces();
+            _logger.LogInformation("after the K8s Pod Call");
+
+            return View();
+        }
+
+        public async Task<IActionResult> K8s()
+        {
+            _logger.LogInformation("be4 the K8s Connetion");
+#if RELEASE
+            var config = KubernetesClientConfiguration.InClusterConfig();
+#else
+            var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(@"G:\aspcore\MVCCoreDocker\MVCCoreDocker\MVCCoreDocker\bin\Debug\net5.0\config");
+#endif
+            IKubernetes client = new Kubernetes(config);
+            _logger.LogInformation("after the K8s Connetion");
+
+            var list = client.ListNamespacedPod("default");
+            _logger.LogInformation("after the K8s Pod Call");
+
+            List<k8sClass> k8 = new List<k8sClass>();
+
+            string ip = null;
+            foreach (var item in list.Items)
+            {
+                k8sClass k = new k8sClass();
+                k.PodName = item.Metadata.Name + " " + item.Metadata.GenerateName + "  " + "PodIP: " + item.Status.PodIP;
+                k8.Add(k);
+                ip = item.Status.PodIP;
+                //Console.WriteLine(item.Metadata.Name);
+            }
+
+            if (list.Items.Count == 0)
+            {
+                // Console.WriteLine("Empty!");
+            }
+
+            // need to make a nginx pod 
+            Uri myUri = new Uri("http://" + ip);
+
+            HttpClient clienthttp = new HttpClient();
+
+            clienthttp.BaseAddress = myUri;
+            clienthttp.DefaultRequestHeaders.Accept.Clear();
+            clienthttp.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var st = await clienthttp.GetAsync(myUri);
+
+            ViewData["k8"] = k8;
+            return View();
+        }
+
+
+
 
         public IActionResult Index()
         {
@@ -210,20 +294,22 @@ namespace MVCCoreDocker.Controllers
         public IActionResult About()
         {
             _logger.LogInformation("Enter About headless ***** ");
-            /*  headless
-                apiVersion: v1
-                kind: Service
-                metadata:
-                  name: headless-service
-                spec:
-                  clusterIP: None # <--
-                  selector:
-                    app: api
-                  ports:
-                    - protocol: TCP
-                      port: 80
-                      targetPort: 80
-            */
+
+            string dave = @"apiVersion: v1
+            kind: Service
+            metadata:
+              name: headless - service
+            spec:
+                    clusterIP: None # <--
+              selector:
+                app: api
+              ports:
+                -protocol: TCP
+                 port: 80
+                  targetPort: 80";
+
+            _logger.LogInformation(dave);
+ 
 
             string connectionString = "";
 #if DEBUG
@@ -258,7 +344,23 @@ namespace MVCCoreDocker.Controllers
             connectionString += "/database";
             //var client = new MongoClient(connectionString);
 
-            ViewData["ipdata"] = ipclass;
+            if (ipclass.Count() == 0)
+            {
+                IPClass ipc = new IPClass();
+                ipc.IPAddr = "no Headeless Resulution";
+                ipclass.Add(ipc);
+                IPClass ipc1 = new IPClass();
+                ipc1.IPAddr = dave;
+                ipclass.Add(ipc1);
+                ViewData["ipdata"] = ipclass;
+            }
+            else
+            {
+                IPClass ipc1 = new IPClass();
+                ipc1.IPAddr = dave;
+                ipclass.Add(ipc1);
+                ViewData["ipdata"] = ipclass;
+            }
             return View();
         }
 

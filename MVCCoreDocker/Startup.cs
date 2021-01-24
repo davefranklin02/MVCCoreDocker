@@ -39,9 +39,13 @@ namespace MVCCoreDocker
                 .AddRedis("redis",
                         tags: new[] { "services" });
             */
-
+#if DEBUG
             services.AddDbContext<SchoolContext>(options =>
               options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+#else
+            services.AddDbContext<SchoolContext>(options =>
+             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionRelease")));
+#endif
 
             services.AddDbContext<LapContext>(options =>
               options.UseSqlServer(Configuration.GetConnectionString("LapConnection")));

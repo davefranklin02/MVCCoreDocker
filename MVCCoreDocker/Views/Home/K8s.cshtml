@@ -1,0 +1,32 @@
+﻿@model MVCCoreDocker.Models.k8sClass;
+@{
+    ViewData["Title"] = "K8s";
+}
+
+<h1>K8s</h1>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PodName)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewData["k8"] as IEnumerable<MVCCoreDocker.Models.k8sClass>)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PodName)
+                </td>
+
+               
+            </tr>
+        }
+    </tbody>
+</table>

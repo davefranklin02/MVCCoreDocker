@@ -41,10 +41,12 @@ namespace MVCCoreDocker
                     DbInitializer.LapInitialize(Lapcontext);
                     logger.LogInformation("After DbInitializer.LapInitialize(Lapcontext)");
 
+ 
                     logger.LogInformation("DbInitializer.Initialize(context)");
                     var context = services.GetRequiredService<SchoolContext>();
                     DbInitializer.Initialize(context, logger);
                     logger.LogInformation("After DbInitializer.LapInitialize(context)");
+ 
                 }
                 catch (Exception ex)
                 {

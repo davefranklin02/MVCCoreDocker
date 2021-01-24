@@ -5,7 +5,7 @@ services:
   db:
     image: "mcr.microsoft.com/mssql/server:2017-latest"
     volumes:
-      - ${APPDATA}/mssql-server-linux-data:/var/opt/mssql/data
+      - /C/MVCCoreDocker/vol/mssql-server-linux-data:/var/opt/mssql/data
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Pass@word1
@@ -18,7 +18,10 @@ services:
     build:
       context: .
       dockerfile: MVCCoreDocker/Dockerfile
+    
+  
 
 
 volumes:
   mssql-server-linux-data:
+   
