@@ -22,6 +22,7 @@ namespace MVCCoreDocker.Data
 
         public static void Initialize(SchoolContext context, ILogger logger)
         {
+            //test gitlab
             logger.LogInformation("Initialize(SchoolContext context, ILogger logger)");
 
             context.Database.EnsureCreated();
